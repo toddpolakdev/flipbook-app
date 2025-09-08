@@ -1,0 +1,68 @@
+.container {
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 1rem;
+  font-family: system-ui, sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 1.125rem;
+  color: #555;
+}
+
+.grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.card {
+  display: block;
+  background: #fff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  margin: 0 0 0.5rem;
+}
+
+.cardMeta {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.message {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 1.125rem;
+  color: #333;
+}
+
+.error {
+  text-align: center;
+  margin-top: 2rem;
+  font-size: 1.125rem;
+  color: #c00;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "flipbook-app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "web"
+  ],
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only apps/api/src/index.ts",
+    "dev:web": "npm --workspace web run dev",
+    "dev:api": "npm --workspace apps/api run dev",
+    "build": "npm --workspace web run build && npm --workspace apps/api run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0",
+    "typescript": "^5.6.2"
+  },
+  "dependencies": {
+    "micro-cors": "^0.1.1"
+  }
+}
