@@ -39,7 +39,7 @@ export default function EditFlipBookPage() {
 
   const { slug, locale } = useParams() as { slug: string; locale: string };
 
-  console.log("slug:", slug);
+  // console.log("slug:", slug);
   console.log("locale:", locale);
 
   // const slug = params.id;
@@ -87,28 +87,6 @@ export default function EditFlipBookPage() {
 
   const handleImageAdd = () =>
     setForm({ ...form, images: [...form.images, ""] });
-
-  // const handleImageChange = (i: number, value: string) => {
-  //   const updated = [...form.images];
-  //   updated[i] = value;
-  //   setForm({ ...form, images: updated });
-  // };
-
-  // const handleImageRemove = (i: number) =>
-  //   setForm({
-  //     ...form,
-  //     images: form.images.filter((_: any, idx: number) => idx !== i),
-  //   });
-
-  // const handleReorder = (i: number, direction: "up" | "down") => {
-  //   const updated = [...form.images];
-  //   if (direction === "up" && i > 0) {
-  //     [updated[i - 1], updated[i]] = [updated[i], updated[i - 1]];
-  //   } else if (direction === "down" && i < updated.length - 1) {
-  //     [updated[i + 1], updated[i]] = [updated[i], updated[i + 1]];
-  //   }
-  //   setForm({ ...form, images: updated });
-  // };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

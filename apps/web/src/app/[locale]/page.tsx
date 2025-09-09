@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client";
 import { gql, useQuery } from "@apollo/client";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import styles from "./home.module.css";
@@ -20,8 +22,8 @@ const FLIPBOOKS = gql`
   }
 `;
 
-export default function HomePage({ params }: { params: { locale: string } }) {
-  const { locale } = params;
+export default function HomePage() {
+  const { locale } = useParams() as { locale: string };
   const { data, loading, error } = useQuery(FLIPBOOKS);
 
   if (loading) return <p>Loading flipbooks…</p>;

@@ -1,11 +1,17 @@
 .container {
-  max-width: 640px;
+  max-width: 1200px;
   margin: 2rem auto;
-  padding: 1.5rem;
+  padding: 1rem;
   font-family: system-ui, sans-serif;
   background: #fff;
   border-radius: 0.75rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
 }
 
 .title {
@@ -31,11 +37,12 @@
 }
 
 .form input,
-.form textarea {
-  padding: 0.6rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  font-size: 1rem;
+.form textarea,
+.form select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
   transition: border-color 0.2s ease;
 }
 
@@ -83,4 +90,20 @@
   margin-top: 1rem;
   color: #059669;
   text-align: center;
+}
+
+.preview {
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 1rem;
+  background: #fafafa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
 }

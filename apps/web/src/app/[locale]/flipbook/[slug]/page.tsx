@@ -1,14 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React from "react";
 import { gql, useQuery } from "@apollo/client";
-import Link from "next/link";
-import styles from "./flipbook.module.css";
+import { useParams } from "next/navigation";
+import { motion } from "framer-motion";
 import PageFlipper from "@/components/PageFlipper";
+import styles from "./flipbook.module.css";
 
-const FLIPBOOK = gql`
+const FLIPBOOK_BY_SLUG = gql`
   query FlipBookBySlug($slug: String!) {
     flipBookBySlug(slug: $slug) {
+      id
       slug
       translations {
         locale
@@ -26,41 +26,81 @@ const FLIPBOOK = gql`
   }
 `;
 
-export default function FlipBookPage({
-  params,
-}: {
-  params: Promise<{ slug: string; locale: string }>;
-}) {
-  const { slug, locale } = React.use(params);
+interface Translation {
+  locale: string;
+  title?: string;
+  description?: string;
+  images?: string[];
+}
 
-  const { data, loading, error } = useQuery(FLIPBOOK, { variables: { slug } });
+interface FlipBook {
+  id: string;
+  slug: string;
+  translations: Translation[];
+  settings?: {
+    width?: number;
+    height?: number;
+    backgroundColor?: string;
+    showPageNumbers?: boolean;
+  };
+}
 
-  if (loading) return <p className={styles.message}>Loading…</p>;
-  if (error) return <p className={styles.error}>Error: {error.message}</p>;
-
-  const flipBook = data.flipBookBySlug;
-  const translation = flipBook.translations.find(
-    (t: any) => t.locale === locale
+export default function FlipBookDetail() {
+  const { slug, locale } = useParams() as { slug: string; locale: string };
+  const { data, loading, error } = useQuery<{ flipBookBySlug: FlipBook }>(
+    FLIPBOOK_BY_SLUG,
+    {
+      variables: { slug },
+      skip: !slug,
+    }
   );
+
+  if (loading) return <p>Loading flipbook…</p>;
+  if (error) return <p>Error: {error.message}</p>;
+
+  const fb = data?.flipBookBySlug;
+  if (!fb) return <p>Not found</p>;
+
+  const t =
+    fb?.translations.find((tr) => tr.locale === locale) || fb.translations[0];
 
   return (
     <main className={styles.container}>
-      <Link href="/" className={styles.back}>
-        ← Back to Flipbooks
-      </Link>
+      {/* Hero */}
+      <motion.div
+        className={styles.hero}
+        initial={{ opacity: 0, y: 25 }}
+        animate={{ opacity: 1, y: 0 }}>
+        <h1>{t.title}</h1>
+        <p>{t.description}</p>
+      </motion.div>
 
-      <h1 className={styles.title}>{translation?.title}</h1>
-      {translation?.description && (
-        <p className={styles.description}>{translation.description}</p>
-      )}
-      <PageFlipper
-        images={translation?.images || []}
-        width={flipBook.settings?.width || 400}
-        height={flipBook.settings?.height || 600}
-        backgroundColor={flipBook.settings?.backgroundColor || "#fff"}
-        showPageNumbers={flipBook.settings?.showPageNumbers ?? true}
-      />
-      <Link href={`/${locale}/flipbook/${slug}/edit`}>Edit Flipbook</Link>
+      {/* Flipbook Viewer */}
+      <motion.div
+        className={styles.viewer}
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}>
+        <PageFlipper
+          images={t.images ?? []}
+          width={fb.settings?.width || 400}
+          height={fb.settings?.height || 600}
+          backgroundColor={fb.settings?.backgroundColor || "#fff"}
+          showPageNumbers={fb.settings?.showPageNumbers ?? true}
+        />
+      </motion.div>
+
+      {/* Meta info */}
+      <div className={styles.meta}>
+        <p>
+          <strong>Dimensions:</strong> {fb.settings?.width} ×{" "}
+          {fb.settings?.height}
+        </p>
+        <p>
+          <strong>Page Numbers:</strong>{" "}
+          {fb.settings?.showPageNumbers ? "Yes" : "No"}
+        </p>
+      </div>
     </main>
   );
 }
