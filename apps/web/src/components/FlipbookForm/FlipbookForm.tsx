@@ -1,4 +1,5 @@
 "use client";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useState } from "react";
 import PageFlipper from "../PageFlipper";
 import styles from "./FlipbookForm.module.css";
@@ -36,6 +37,8 @@ interface Props {
 
 export default function FlipbookForm({ initialValues, onSubmit }: Props) {
   const [form, setForm] = useState<FlipbookFormValues>(initialValues);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -76,7 +79,13 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await onSubmit(form);
+    try {
+      await onSubmit(form);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -106,7 +115,67 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
           />
         </label>
 
+        <h2>Pages</h2>
+        <div className={styles.fullwidth}>
+          <DragDropContext
+            onDragEnd={(result) => {
+              if (!result.destination) return;
+              const newImages = Array.from(form.images);
+              const [moved] = newImages.splice(result.source.index, 1);
+              newImages.splice(result.destination.index, 0, moved);
+              setForm({ ...form, images: newImages });
+            }}>
+            <Droppable droppableId="pages">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {form.images.map((img, idx) => (
+                    <Draggable key={idx} draggableId={String(idx)} index={idx}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={styles.pageRow}>
+                          <div className={styles.thumbWrapper}>
+                            {img ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={img}
+                                alt={`Page ${idx + 1}`}
+                                className={styles.thumbnail}
+                              />
+                            ) : (
+                              <div className={styles.placeholder}>No image</div>
+                            )}
+                          </div>
+
+                          <div className={styles.inputWrapper}>
+                            <label>
+                              Page {idx + 1}
+                              <input
+                                type="text"
+                                value={img}
+                                onChange={(e) => {
+                                  const images = [...form.images];
+                                  images[idx] = e.target.value;
+                                  setForm({ ...form, images });
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
+
         <h2>Settings</h2>
+
         <label>
           Width
           <input
@@ -126,6 +195,153 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
           />
         </label>
         <label>
+          Size
+          <select
+            name="size"
+            value={form.settings.size}
+            onChange={handleChange}>
+            <option value="fixed">Fixed</option>
+            <option value="stretch">Stretch</option>
+          </select>
+        </label>
+        <label>
+          Min Width
+          <input
+            type="number"
+            name="minWidth"
+            value={form.settings.minWidth}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Max Width
+          <input
+            type="number"
+            name="maxWidth"
+            value={form.settings.maxWidth}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Min Height
+          <input
+            type="number"
+            name="minHeight"
+            value={form.settings.minHeight}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Max Height
+          <input
+            type="number"
+            name="maxHeight"
+            value={form.settings.maxHeight}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Flipping Time (ms)
+          <input
+            type="number"
+            name="flippingTime"
+            value={form.settings.flippingTime}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          Max Shadow Opacity
+          <input
+            type="number"
+            step="0.1"
+            min="0"
+            max="1"
+            name="maxShadowOpacity"
+            value={form.settings.maxShadowOpacity}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          <div className={styles.checkboxWrapper}>
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                name="drawShadow"
+                checked={form.settings.drawShadow}
+                onChange={handleChange}
+              />
+              <span className={styles.slider}></span>
+            </label>
+            <span>Draw Shadow</span>
+          </div>
+        </label>
+
+        <label>
+          <div className={styles.checkboxWrapper}>
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                name="usePortrait"
+                checked={form.settings.usePortrait}
+                onChange={handleChange}
+              />
+              <span className={styles.slider}></span>
+            </label>
+            <span>Use Portrait</span>
+          </div>
+        </label>
+
+        <label>
+          Start Z-Index
+          <input
+            type="number"
+            name="startZIndex"
+            value={form.settings.startZIndex}
+            onChange={handleChange}
+          />
+        </label>
+        <label>
+          <div className={styles.checkboxWrapper}>
+            <label className={styles.toggle}>
+              <input
+                type="checkbox"
+                name="autoSize"
+                checked={form.settings.autoSize}
+                onChange={handleChange}
+              />
+              <span className={styles.slider}></span>
+            </label>
+            <span>Auto Size</span>
+          </div>
+        </label>
+
+        <div className={styles.checkboxWrapper}>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              name="showCover"
+              checked={form.settings.showCover}
+              onChange={handleChange}
+            />
+            <span className={styles.slider}></span>
+          </label>
+          <span>Show Cover</span>
+        </div>
+
+        <div className={styles.checkboxWrapper}>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              name="mobileScrollSupport"
+              checked={form.settings.mobileScrollSupport}
+              onChange={handleChange}
+            />
+            <span className={styles.slider}></span>
+          </label>
+          <span>Mobile Scroll Support</span>
+        </div>
+
+        <label>
           Background Color
           <input
             type="color"
@@ -134,47 +350,45 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
             onChange={handleChange}
           />
         </label>
-        <label>
-          <input
-            type="checkbox"
-            name="showPageNumbers"
-            checked={form.settings.showPageNumbers}
-            onChange={handleChange}
-          />
-          Show Page Numbers
-        </label>
 
-        <h2>Pages</h2>
-        {form.images.map((img, idx) => (
-          <label key={idx}>
-            Page {idx + 1}
+        <div className={styles.checkboxWrapper}>
+          <label className={styles.toggle}>
             <input
-              type="text"
-              value={img}
-              onChange={(e) => {
-                const images = [...form.images];
-                images[idx] = e.target.value;
-                setForm({ ...form, images });
-              }}
+              type="checkbox"
+              name="showPageNumbers"
+              checked={form.settings.showPageNumbers}
+              onChange={handleChange}
             />
+            <span className={styles.slider}></span>
           </label>
-        ))}
+          <span>Show Page Numbers</span>
+        </div>
+
         <button type="button" onClick={addPage}>
           Add Page
         </button>
 
-        <button type="submit">Save Flipbook</button>
+        <button type="submit">{saving ? "Saving…" : "Save Flipbook"}</button>
+        {saved && <span className={styles.savedMessage}>✅ Saved!</span>}
       </form>
 
-      {/* Right: Preview */}
       <div className={styles.preview}>
-        <PageFlipper
-          images={form.images}
-          width={form.settings.width}
-          height={form.settings.height}
-          backgroundColor={form.settings.backgroundColor}
-          showPageNumbers={form.settings.showPageNumbers}
-        />
+        {form.images.length > 0 ? (
+          <PageFlipper
+            images={form.images}
+            width={form.settings.width}
+            height={form.settings.height}
+            backgroundColor={form.settings.backgroundColor}
+            showPageNumbers={form.settings.showPageNumbers}
+          />
+        ) : (
+          <div className={styles.placeholder}>
+            <p>No pages yet</p>
+            <p>
+              Add one using the <strong>Add Page</strong> button
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

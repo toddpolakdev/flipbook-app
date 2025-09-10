@@ -14,7 +14,7 @@ export default function PageFlipper({
   images,
   width = 400,
   height = 600,
-  backgroundColor = "#fff",
+  backgroundColor = "#8e1b1bff",
   showPageNumbers = true,
 }: PageFlipperProps) {
   return (
@@ -31,7 +31,7 @@ export default function PageFlipper({
         drawShadow={true}
         flippingTime={600}
         useMouseEvents={true}
-        showCover={false}
+        showCover={true}
         mobileScrollSupport={true}
         className=""
         style={{}}
