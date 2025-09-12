@@ -16,6 +16,10 @@ export interface FlipBookSettings {
   mobileScrollSupport: boolean;
   backgroundColor: string;
   showPageNumbers: boolean;
+  swipeDistance: number;
+  showPageCorners: boolean;
+  disableFlipByClick: boolean;
+  useMouseEvents: boolean;
   __typename?: string;
 }
 
@@ -25,5 +29,8 @@ export interface FlipBook {
   title: string;
   description?: string;
   images: string[];
+  order?: number;
   settings?: FlipBookSettings;
+  createdAt?: string;
+  updatedAt?: string;
 }

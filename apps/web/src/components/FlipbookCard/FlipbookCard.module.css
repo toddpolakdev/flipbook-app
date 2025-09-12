@@ -39,7 +39,7 @@
 }
 
 .actions a {
-  background: #f4f7fc;
+  background: #e5e7eb;
   color: #fff;
   padding: 0.5rem 0.9rem;
   border-radius: 0.4rem;
@@ -50,6 +50,6 @@
 }
 
 .actions a:hover {
-  background: #f4f7fc;
+  background: #d1d5db;
   color: #000;
 }

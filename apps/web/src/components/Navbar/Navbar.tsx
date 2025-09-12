@@ -15,9 +15,6 @@ export default function NavBar() {
   const editMatch = pathname.match(/^\/flipbook\/([^/]+)\/edit$/);
   const editslug = editMatch ? editMatch[1] : null;
 
-  console.log("currentSlug: ", currentSlug);
-  console.log("editslug: ", editslug);
-
   return (
     <nav className={styles.nav}>
       <div className={styles.inner}>

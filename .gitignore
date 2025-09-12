@@ -46,3 +46,7 @@ docker-compose.override.yml
 # Others
 tmp
 temp
+
+# Monorepo-specific
+apps/api/node_modules
+apps/web/node_modules

@@ -28,15 +28,12 @@ const REORDER_FLIPBOOKS = gql`
 `;
 
 export default function HomePage() {
-  const { data, error } = useQuery(FLIPBOOKS, {
+  const { data } = useQuery(FLIPBOOKS, {
     fetchPolicy: "no-cache",
   });
   const [flipbooks, setFlipbooks] = useState<FlipBook[]>([]);
 
   const [reorderFlipBooks] = useMutation(REORDER_FLIPBOOKS);
-
-  console.log("data", data);
-  console.log("error", error);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDragEnd = async (result: any) => {

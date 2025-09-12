@@ -1,6 +1,6 @@
 "use client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PageFlipper from "../PageFlipper";
 import styles from "./FlipbookForm.module.css";
 
@@ -25,8 +25,11 @@ export interface FlipbookFormValues {
     maxShadowOpacity: number;
     showCover: boolean;
     mobileScrollSupport: boolean;
-    backgroundColor: string;
     showPageNumbers: boolean;
+    swipeDistance: number;
+    showPageCorners: boolean;
+    disableFlipByClick: boolean;
+    useMouseEvents: boolean;
   };
 }
 
@@ -39,6 +42,19 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
   const [form, setForm] = useState<FlipbookFormValues>(initialValues);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  const flipbookKey = useMemo(() => {
+    const {
+      width,
+      height,
+      size,
+      flippingTime,
+      usePortrait,
+      autoSize,
+      showCover,
+    } = form.settings;
+    return `${width}-${height}-${size}-${flippingTime}-${usePortrait}-${autoSize}-${showCover}`;
+  }, [form.settings]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -79,6 +95,7 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaving(true);
     try {
       await onSubmit(form);
       setSaved(true);
@@ -90,7 +107,6 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
 
   return (
     <div className={styles.layout}>
-      {/* Left: Form */}
       <form onSubmit={handleSubmit} className={styles.form}>
         <h2>Details</h2>
         <label>
@@ -116,63 +132,9 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
         </label>
 
         <h2>Pages</h2>
-        <div className={styles.fullwidth}>
-          <DragDropContext
-            onDragEnd={(result) => {
-              if (!result.destination) return;
-              const newImages = Array.from(form.images);
-              const [moved] = newImages.splice(result.source.index, 1);
-              newImages.splice(result.destination.index, 0, moved);
-              setForm({ ...form, images: newImages });
-            }}>
-            <Droppable droppableId="pages">
-              {(provided) => (
-                <div ref={provided.innerRef} {...provided.droppableProps}>
-                  {form.images.map((img, idx) => (
-                    <Draggable key={idx} draggableId={String(idx)} index={idx}>
-                      {(provided) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={styles.pageRow}>
-                          <div className={styles.thumbWrapper}>
-                            {img ? (
-                              // eslint-disable-next-line @next/next/no-img-element
-                              <img
-                                src={img}
-                                alt={`Page ${idx + 1}`}
-                                className={styles.thumbnail}
-                              />
-                            ) : (
-                              <div className={styles.placeholder}>No image</div>
-                            )}
-                          </div>
 
-                          <div className={styles.inputWrapper}>
-                            <label>
-                              Page {idx + 1}
-                              <input
-                                type="text"
-                                value={img}
-                                onChange={(e) => {
-                                  const images = [...form.images];
-                                  images[idx] = e.target.value;
-                                  setForm({ ...form, images });
-                                }}
-                              />
-                            </label>
-                          </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        </div>
+        <button type="submit">{saving ? "Saving…" : "Save Flipbook"}</button>
+        {saved && <span className={styles.savedMessage}>✅ Saved!</span>}
 
         <h2>Settings</h2>
 
@@ -247,6 +209,9 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
             name="flippingTime"
             value={form.settings.flippingTime}
             onChange={handleChange}
+            min="100"
+            max="2000"
+            step="100"
           />
         </label>
         <label>
@@ -261,6 +226,27 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
             onChange={handleChange}
           />
         </label>
+        <label>
+          Swipe Distance
+          <input
+            type="number"
+            name="swipeDistance"
+            value={form.settings.swipeDistance}
+            onChange={handleChange}
+            min="10"
+            max="100"
+          />
+        </label>
+        <label>
+          Start Z-Index
+          <input
+            type="number"
+            name="startZIndex"
+            value={form.settings.startZIndex}
+            onChange={handleChange}
+          />
+        </label>
+
         <label>
           <div className={styles.checkboxWrapper}>
             <label className={styles.toggle}>
@@ -291,15 +277,6 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
           </div>
         </label>
 
-        <label>
-          Start Z-Index
-          <input
-            type="number"
-            name="startZIndex"
-            value={form.settings.startZIndex}
-            onChange={handleChange}
-          />
-        </label>
         <label>
           <div className={styles.checkboxWrapper}>
             <label className={styles.toggle}>
@@ -341,16 +318,6 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
           <span>Mobile Scroll Support</span>
         </div>
 
-        <label>
-          Background Color
-          <input
-            type="color"
-            name="backgroundColor"
-            value={form.settings.backgroundColor}
-            onChange={handleChange}
-          />
-        </label>
-
         <div className={styles.checkboxWrapper}>
           <label className={styles.toggle}>
             <input
@@ -364,22 +331,136 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
           <span>Show Page Numbers</span>
         </div>
 
+        <div className={styles.checkboxWrapper}>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              name="showPageCorners"
+              checked={form.settings.showPageCorners}
+              onChange={handleChange}
+            />
+            <span className={styles.slider}></span>
+          </label>
+          <span>Show Page Corners</span>
+        </div>
+
+        <div className={styles.checkboxWrapper}>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              name="disableFlipByClick"
+              checked={form.settings.disableFlipByClick}
+              onChange={handleChange}
+            />
+            <span className={styles.slider}></span>
+          </label>
+          <span>Disable Click to Flip</span>
+        </div>
+
+        <div className={styles.checkboxWrapper}>
+          <label className={styles.toggle}>
+            <input
+              type="checkbox"
+              name="useMouseEvents"
+              checked={form.settings.useMouseEvents}
+              onChange={handleChange}
+            />
+            <span className={styles.slider}></span>
+          </label>
+          <span>Use Mouse Events</span>
+        </div>
+
         <button type="button" onClick={addPage}>
           Add Page
         </button>
 
         <button type="submit">{saving ? "Saving…" : "Save Flipbook"}</button>
         {saved && <span className={styles.savedMessage}>✅ Saved!</span>}
+
+        <div className={styles.fullwidth}>
+          <DragDropContext
+            onDragEnd={(result) => {
+              if (!result.destination) return;
+              const newImages = Array.from(form.images);
+              const [moved] = newImages.splice(result.source.index, 1);
+              newImages.splice(result.destination.index, 0, moved);
+              setForm({ ...form, images: newImages });
+            }}>
+            <Droppable droppableId="pages">
+              {(provided) => (
+                <div ref={provided.innerRef} {...provided.droppableProps}>
+                  {form.images.map((img, idx) => (
+                    <Draggable key={idx} draggableId={String(idx)} index={idx}>
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className={styles.pageRow}>
+                          <div className={styles.thumbWrapper}>
+                            {img ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={img}
+                                alt={`Page ${idx + 1}`}
+                                className={styles.thumbnail}
+                              />
+                            ) : (
+                              <div className={styles.placeholder}>No image</div>
+                            )}
+                          </div>
+
+                          <div className={styles.inputWrapper}>
+                            <label>
+                              Page {idx + 1}
+                              <input
+                                type="text"
+                                value={img}
+                                onChange={(e) => {
+                                  const images = [...form.images];
+                                  images[idx] = e.target.value;
+                                  setForm({ ...form, images });
+                                }}
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
+        </div>
       </form>
 
       <div className={styles.preview}>
         {form.images.length > 0 ? (
           <PageFlipper
+            key={flipbookKey}
             images={form.images}
             width={form.settings.width}
             height={form.settings.height}
-            backgroundColor={form.settings.backgroundColor}
             showPageNumbers={form.settings.showPageNumbers}
+            size={form.settings.size}
+            minWidth={form.settings.minWidth}
+            maxWidth={form.settings.maxWidth}
+            minHeight={form.settings.minHeight}
+            maxHeight={form.settings.maxHeight}
+            drawShadow={form.settings.drawShadow}
+            flippingTime={form.settings.flippingTime}
+            usePortrait={form.settings.usePortrait}
+            startZIndex={form.settings.startZIndex}
+            autoSize={form.settings.autoSize}
+            maxShadowOpacity={form.settings.maxShadowOpacity}
+            showCover={form.settings.showCover}
+            mobileScrollSupport={form.settings.mobileScrollSupport}
+            swipeDistance={form.settings.swipeDistance}
+            showPageCorners={form.settings.showPageCorners}
+            disableFlipByClick={form.settings.disableFlipByClick}
+            useMouseEvents={form.settings.useMouseEvents}
           />
         ) : (
           <div className={styles.placeholder}>
@@ -402,20 +483,23 @@ export const defaultFlipbookValues: FlipbookFormValues = {
   settings: {
     width: 400,
     height: 600,
-    size: "fixed",
+    size: "stretch",
     minWidth: 315,
     maxWidth: 1000,
     minHeight: 400,
     maxHeight: 1500,
     drawShadow: true,
-    flippingTime: 1000,
+    flippingTime: 600,
     usePortrait: true,
     startZIndex: 0,
     autoSize: true,
-    maxShadowOpacity: 1,
-    showCover: false,
+    maxShadowOpacity: 0.5,
+    showCover: true,
     mobileScrollSupport: true,
-    backgroundColor: "#ffffff",
     showPageNumbers: true,
+    swipeDistance: 30,
+    showPageCorners: true,
+    disableFlipByClick: false,
+    useMouseEvents: true,
   },
 };

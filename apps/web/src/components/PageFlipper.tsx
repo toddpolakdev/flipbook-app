@@ -8,41 +8,75 @@ type PageFlipperProps = {
   height?: number;
   backgroundColor?: string;
   showPageNumbers?: boolean;
+  size?: "fixed" | "stretch";
+  minWidth?: number;
+  maxWidth?: number;
+  minHeight?: number;
+  maxHeight?: number;
+  drawShadow?: boolean;
+  flippingTime?: number;
+  usePortrait?: boolean;
+  startZIndex?: number;
+  autoSize?: boolean;
+  maxShadowOpacity?: number;
+  showCover?: boolean;
+  mobileScrollSupport?: boolean;
+  swipeDistance?: number;
+  showPageCorners?: boolean;
+  disableFlipByClick?: boolean;
+  useMouseEvents?: boolean;
 };
 
 export default function PageFlipper({
   images,
   width = 400,
   height = 600,
-  backgroundColor = "#8e1b1bff",
+  backgroundColor = "",
   showPageNumbers = true,
+  size = "stretch",
+  minWidth = 315,
+  maxWidth = 1000,
+  minHeight = 400,
+  maxHeight = 1500,
+  drawShadow = true,
+  flippingTime = 600,
+  usePortrait = true,
+  startZIndex = 0,
+  autoSize = true,
+  maxShadowOpacity = 0.5,
+  showCover = true,
+  mobileScrollSupport = true,
+  swipeDistance = 30,
+  showPageCorners = true,
+  disableFlipByClick = false,
+  useMouseEvents = true,
 }: PageFlipperProps) {
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <HTMLFlipBook
         width={width}
         height={height}
-        size="stretch"
-        minWidth={315}
-        maxWidth={1000}
-        minHeight={400}
-        maxHeight={1500}
-        maxShadowOpacity={0.5}
-        drawShadow={true}
-        flippingTime={600}
-        useMouseEvents={true}
-        showCover={true}
-        mobileScrollSupport={true}
+        size={size}
+        minWidth={minWidth}
+        maxWidth={maxWidth}
+        minHeight={minHeight}
+        maxHeight={maxHeight}
+        maxShadowOpacity={maxShadowOpacity}
+        drawShadow={drawShadow}
+        flippingTime={flippingTime}
+        useMouseEvents={useMouseEvents}
+        showCover={showCover}
+        mobileScrollSupport={mobileScrollSupport}
         className=""
         style={{}}
         startPage={0}
-        usePortrait={true}
+        usePortrait={usePortrait}
         clickEventForward={true}
-        startZIndex={0}
-        autoSize={true}
-        swipeDistance={30}
-        showPageCorners={true}
-        disableFlipByClick={false}>
+        startZIndex={startZIndex}
+        autoSize={autoSize}
+        swipeDistance={swipeDistance}
+        showPageCorners={showPageCorners}
+        disableFlipByClick={disableFlipByClick}>
         {images.map((src, i) => (
           <div
             key={i}
@@ -59,8 +93,8 @@ export default function PageFlipper({
                 src={src}
                 alt={`Page ${i + 1}`}
                 style={{
-                  width: "100%",
-                  height: "100%",
+                  width: "80%",
+                  height: "80%",
                   objectFit: "cover",
                 }}
               />
@@ -88,6 +122,9 @@ export default function PageFlipper({
                   right: "12px",
                   fontSize: "0.8rem",
                   color: "#666",
+                  background: "rgba(255, 255, 255, 0.8)",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
                 }}>
                 {i + 1}
               </span>
