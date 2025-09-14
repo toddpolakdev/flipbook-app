@@ -1,7 +1,6 @@
 "use client";
 import { ApolloProvider } from "@apollo/client";
 import client from "@/lib/apolloClient";
-// import client from "../src/lib/apolloClient";
 
 export default function ApolloWrapper({
   children,

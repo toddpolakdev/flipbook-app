@@ -1,44 +1,56 @@
 import { ApolloServer } from "apollo-server-micro";
-// import microCors from "micro-cors";
-const microCors = require("micro-cors");
 import type { IncomingMessage, ServerResponse } from "http";
 import { typeDefs } from "./schema.ts";
 import { resolvers } from "./resolvers.ts";
 import { connectDB } from "./db.ts";
 import "dotenv/config";
+import http from "http";
 
-const cors = microCors({
-  origin: "http://localhost:3000",
-  allowCredentials: true,
-  allowMethods: ["GET", "POST", "OPTIONS"],
-});
+// Create Apollo server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
   context: async () => {
-    await connectDB();
-    return {};
+    const db = await connectDB();
+    return { db };
   },
 });
 
-const start = server.start();
+// Start Apollo (async startup)
+const startServer = server.start();
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:4000",
+  "http://10.0.0.25:3000",
+  "https://studio.apollographql.com",
+];
 
 const handler = async (req: IncomingMessage, res: ServerResponse) => {
+  await startServer;
+
+  const origin = req.headers.origin;
+
+  if (origin && allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
   if (req.method === "OPTIONS") {
+    res.statusCode = 200;
     res.end();
     return;
   }
-  await start;
-  // @ts-ignore - apollo-server-micro handler typings
-  return server.createHandler({ path: "/graphql" })(req, res);
+
+  // @ts-ignore
+  return server.createHandler({ path: "/graphql", cors: false })(req, res);
 };
 
-const corsed = cors(handler);
-
+// Start Node HTTP server
 const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-
-// Simple Node server (micro-style)
-import http from "http";
-http.createServer(corsed).listen(port, () => {
-  console.log(`\nAPI ready on http://localhost:${port}/graphql`);
+http.createServer(handler).listen(port, "0.0.0.0", () => {
+  console.log(`🚀 API ready at http://localhost:${port}/graphql`);
 });
