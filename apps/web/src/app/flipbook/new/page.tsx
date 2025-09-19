@@ -40,7 +40,6 @@ export default function NewFlipBookPage() {
           maxShadowOpacity: values.settings.maxShadowOpacity,
           showCover: values.settings.showCover,
           mobileScrollSupport: values.settings.mobileScrollSupport,
-          backgroundColor: values.settings.backgroundColor,
           showPageNumbers: values.settings.showPageNumbers,
           swipeDistance: values.settings.swipeDistance,
           showPageCorners: values.settings.showPageCorners,
