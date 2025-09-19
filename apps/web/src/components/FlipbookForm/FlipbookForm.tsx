@@ -1,8 +1,20 @@
 "use client";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useState, useMemo } from "react";
+import {
+  Accordion,
+  Group,
+  NumberInput,
+  Select,
+  Switch,
+  TextInput,
+  Textarea,
+  Card,
+  Stack,
+} from "@mantine/core";
+import { Button } from "@mantine/core";
 import PageFlipper from "../PageFlipper";
-import styles from "./FlipbookForm.module.css";
+import { toast } from "sonner";
 
 export interface FlipbookFormValues {
   slug: string;
@@ -41,13 +53,6 @@ interface Props {
 export default function FlipbookForm({ initialValues, onSubmit }: Props) {
   const [form, setForm] = useState<FlipbookFormValues>(initialValues);
   const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  const [openSection, setOpenSection] = useState<string | null>("details");
-
-  const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? null : section);
-  };
 
   const flipbookKey = useMemo(() => {
     const {
@@ -62,26 +67,14 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
     return `${width}-${height}-${size}-${flippingTime}-${usePortrait}-${autoSize}-${showCover}`;
   }, [form.settings]);
 
-  const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
-  ) => {
-    const { name, type, value } = e.target;
-    let newValue: string | number | boolean = value;
-
-    if (type === "checkbox") {
-      newValue = (e.target as HTMLInputElement).checked;
-    } else if (type === "number") {
-      newValue = Number(value);
-    }
-
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleChange = (name: string, value: any) => {
     if (name in form.settings) {
       setForm({
         ...form,
         settings: {
           ...form.settings,
-          [name]: newValue,
+          [name]: value,
         },
       });
     } else {
@@ -94,7 +87,7 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
       ...form,
       images: [
         ...form.images,
-        "https://via.placeholder.com/400x600?text=New+Page",
+        "https://fastly.picsum.photos/id/2/5000/3333.jpg?hmac=_KDkqQVttXw_nM-RyJfLImIbafFrqLsuGO5YuHqD-qQe",
       ],
     });
   };
@@ -104,73 +97,60 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
     setSaving(true);
     try {
       await onSubmit(form);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      toast.success("Flipbook saved!");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className={styles.layout}>
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <button type="submit">{saving ? "Saving…" : "Save Flipbook"}</button>
-        <div className={styles.section}>
-          <button
-            type="button"
-            className={styles.sectionHeader}
-            onClick={() => toggleSection("details")}>
-            {" "}
-            Details
-            <span>{openSection === "details" ? "−" : "+"}</span>
-          </button>
-
-          {openSection === "details" && (
-            <div className={styles.sectionContent}>
-              <label>
-                Slug
-                <input
-                  name="slug"
-                  value={form.slug}
-                  onChange={handleChange}
+    <div
+      style={{
+        maxWidth: 1200,
+        margin: "2rem auto",
+        padding: "1rem",
+        display: "grid",
+        gridTemplateColumns: "1fr 500px",
+        gap: "2rem",
+      }}>
+      <form onSubmit={handleSubmit}>
+        <Accordion multiple defaultValue={["details", "pages", "settings"]}>
+          {/* Details */}
+          <Accordion.Item value="details">
+            <Accordion.Control>Details</Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap="md">
+                <TextInput
+                  label="Slug"
                   required
+                  value={form.slug}
+                  onChange={(e) => handleChange("slug", e.currentTarget.value)}
                 />
-              </label>
-              <label>
-                Title
-                <input
-                  name="title"
+                <TextInput
+                  label="Title"
                   value={form.title}
-                  onChange={handleChange}
+                  onChange={(e) => handleChange("title", e.currentTarget.value)}
                 />
-              </label>
-              <label>
-                Description
-                <textarea
-                  name="description"
+                <Textarea
+                  label="Description"
+                  minRows={3}
                   value={form.description}
-                  onChange={handleChange}
+                  onChange={(e) =>
+                    handleChange("description", e.currentTarget.value)
+                  }
                 />
-              </label>
-            </div>
-          )}
-        </div>
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
 
-        <div className={styles.section}>
-          <button
-            type="button"
-            className={styles.sectionHeader}
-            onClick={() => toggleSection("pages")}>
-            Pages
-            <span>{openSection === "pages" ? "−" : "+"}</span>
-          </button>
-          {openSection === "pages" && (
-            <div className={styles.sectionContent}>
-              <button type="button" onClick={addPage}>
-                Add Page
-              </button>
-
-              <div className={styles.fullwidth}>
+          {/* Pages */}
+          <Accordion.Item value="pages">
+            <Accordion.Control>Pages</Accordion.Control>
+            <Accordion.Panel>
+              <Stack>
+                <Button variant="light" onClick={addPage}>
+                  Add Page
+                </Button>
                 <DragDropContext
                   onDragEnd={(result) => {
                     if (!result.destination) return;
@@ -188,41 +168,45 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                             draggableId={String(idx)}
                             index={idx}>
                             {(provided) => (
-                              <div
+                              <Card
+                                shadow="sm"
+                                padding="sm"
+                                mb="sm"
+                                withBorder
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={styles.pageRow}>
-                                <div className={styles.thumbWrapper}>
-                                  {img ? (
-                                    // eslint-disable-next-line @next/next/no-img-element
+                                {...provided.dragHandleProps}>
+                                <Group>
+                                  <div
+                                    style={{
+                                      width: 60,
+                                      height: 90,
+                                      border: "1px solid #ddd",
+                                      borderRadius: 4,
+                                      overflow: "hidden",
+                                    }}>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                       src={img}
                                       alt={`Page ${idx + 1}`}
-                                      className={styles.thumbnail}
-                                    />
-                                  ) : (
-                                    <div className={styles.placeholder}>
-                                      No image
-                                    </div>
-                                  )}
-                                </div>
-
-                                <div className={styles.inputWrapper}>
-                                  <label>
-                                    Page {idx + 1}
-                                    <input
-                                      type="text"
-                                      value={img}
-                                      onChange={(e) => {
-                                        const images = [...form.images];
-                                        images[idx] = e.target.value;
-                                        setForm({ ...form, images });
+                                      style={{
+                                        width: "100%",
+                                        height: "100%",
+                                        objectFit: "cover",
                                       }}
                                     />
-                                  </label>
-                                </div>
-                              </div>
+                                  </div>
+                                  <TextInput
+                                    label={`Page ${idx + 1}`}
+                                    value={img}
+                                    onChange={(e) => {
+                                      const images = [...form.images];
+                                      images[idx] = e.currentTarget.value;
+                                      setForm({ ...form, images });
+                                    }}
+                                  />
+                                </Group>
+                              </Card>
                             )}
                           </Draggable>
                         ))}
@@ -231,288 +215,211 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                     )}
                   </Droppable>
                 </DragDropContext>
-              </div>
-            </div>
-          )}
-        </div>
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
 
-        <div className={styles.section}>
-          <button
-            type="button"
-            className={styles.sectionHeader}
-            onClick={() => toggleSection("settings")}>
-            Settings
-            <span>{openSection === "settings" ? "−" : "+"}</span>
-          </button>
-          {openSection === "settings" && (
-            <div className={styles.sectionContent}>
-              <div className={styles.checkboxWrapper}>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    name="showCover"
-                    checked={form.settings.showCover}
-                    onChange={handleChange}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-                <span>Show Cover</span>
-              </div>
-
-              <div className={styles.checkboxWrapper}>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    name="mobileScrollSupport"
-                    checked={form.settings.mobileScrollSupport}
-                    onChange={handleChange}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-                <span>Mobile Scroll Support</span>
-              </div>
-
-              <div className={styles.checkboxWrapper}>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    name="showPageNumbers"
-                    checked={form.settings.showPageNumbers}
-                    onChange={handleChange}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-                <span>Show Page Numbers</span>
-              </div>
-
-              <div className={styles.checkboxWrapper}>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    name="showPageCorners"
-                    checked={form.settings.showPageCorners}
-                    onChange={handleChange}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-                <span>Show Page Corners</span>
-              </div>
-
-              <div className={styles.checkboxWrapper}>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    name="disableFlipByClick"
-                    checked={form.settings.disableFlipByClick}
-                    onChange={handleChange}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-                <span>Disable Click to Flip</span>
-              </div>
-
-              <div className={styles.checkboxWrapper}>
-                <label className={styles.toggle}>
-                  <input
-                    type="checkbox"
-                    name="useMouseEvents"
-                    checked={form.settings.useMouseEvents}
-                    onChange={handleChange}
-                  />
-                  <span className={styles.slider}></span>
-                </label>
-                <span>Use Mouse Events</span>
-              </div>
-
-              <label>
-                <div className={styles.checkboxWrapper}>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      name="drawShadow"
-                      checked={form.settings.drawShadow}
-                      onChange={handleChange}
-                    />
-                    <span className={styles.slider}></span>
-                  </label>
-                  <span>Draw Shadow</span>
-                </div>
-              </label>
-
-              <label>
-                <div className={styles.checkboxWrapper}>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      name="usePortrait"
-                      checked={form.settings.usePortrait}
-                      onChange={handleChange}
-                    />
-                    <span className={styles.slider}></span>
-                  </label>
-                  <span>Use Portrait</span>
-                </div>
-              </label>
-
-              <label>
-                <div className={styles.checkboxWrapper}>
-                  <label className={styles.toggle}>
-                    <input
-                      type="checkbox"
-                      name="autoSize"
-                      checked={form.settings.autoSize}
-                      onChange={handleChange}
-                    />
-                    <span className={styles.slider}></span>
-                  </label>
-                  <span>Auto Size</span>
-                </div>
-              </label>
-
-              <div
-                className={`${styles.sectionContent} ${styles.settingsGrid}`}>
-                <label>
-                  Width
-                  <input
-                    type="number"
-                    name="width"
+          {/* Settings */}
+          <Accordion.Item value="settings">
+            <Accordion.Control>Settings</Accordion.Control>
+            <Accordion.Panel>
+              <Stack gap="md">
+                <Group grow>
+                  <NumberInput
+                    label="Width"
                     value={form.settings.width}
-                    onChange={handleChange}
+                    onChange={(val) => handleChange("width", val)}
                   />
-                </label>
-                <label>
-                  Height
-                  <input
-                    type="number"
-                    name="height"
+                  <NumberInput
+                    label="Height"
                     value={form.settings.height}
-                    onChange={handleChange}
+                    onChange={(val) => handleChange("height", val)}
                   />
-                </label>
-                <label>
-                  Size
-                  <select
-                    name="size"
-                    value={form.settings.size}
-                    onChange={handleChange}>
-                    <option value="fixed">Fixed</option>
-                    <option value="stretch">Stretch</option>
-                  </select>
-                </label>
-                <label>
-                  Min Width
-                  <input
-                    type="number"
-                    name="minWidth"
+                </Group>
+
+                <Select
+                  label="Size"
+                  data={[
+                    { value: "fixed", label: "Fixed" },
+                    { value: "stretch", label: "Stretch" },
+                  ]}
+                  value={form.settings.size}
+                  onChange={(val) => handleChange("size", val)}
+                />
+
+                <Group grow>
+                  <NumberInput
+                    label="Min Width"
                     value={form.settings.minWidth}
-                    onChange={handleChange}
+                    onChange={(val) => handleChange("minWidth", val)}
                   />
-                </label>
-                <label>
-                  Max Width
-                  <input
-                    type="number"
-                    name="maxWidth"
+                  <NumberInput
+                    label="Max Width"
                     value={form.settings.maxWidth}
-                    onChange={handleChange}
+                    onChange={(val) => handleChange("maxWidth", val)}
                   />
-                </label>
-                <label>
-                  Min Height
-                  <input
-                    type="number"
-                    name="minHeight"
+                </Group>
+
+                <Group grow>
+                  <NumberInput
+                    label="Min Height"
                     value={form.settings.minHeight}
-                    onChange={handleChange}
+                    onChange={(val) => handleChange("minHeight", val)}
                   />
-                </label>
-                <label>
-                  Max Height
-                  <input
-                    type="number"
-                    name="maxHeight"
+                  <NumberInput
+                    label="Max Height"
                     value={form.settings.maxHeight}
-                    onChange={handleChange}
+                    onChange={(val) => handleChange("maxHeight", val)}
                   />
-                </label>
-                <label>
-                  Flipping Time (ms)
-                  <input
-                    type="number"
-                    name="flippingTime"
-                    value={form.settings.flippingTime}
-                    onChange={handleChange}
-                    min="100"
-                    max="2000"
-                    step="100"
+                </Group>
+
+                <NumberInput
+                  label="Flipping Time (ms)"
+                  min={100}
+                  max={2000}
+                  step={100}
+                  value={form.settings.flippingTime}
+                  onChange={(val) => handleChange("flippingTime", val)}
+                />
+
+                <NumberInput
+                  label="Max Shadow Opacity"
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  // precision={1}
+                  value={form.settings.maxShadowOpacity}
+                  onChange={(val) => handleChange("maxShadowOpacity", val)}
+                />
+
+                <NumberInput
+                  label="Swipe Distance"
+                  min={10}
+                  max={100}
+                  value={form.settings.swipeDistance}
+                  onChange={(val) => handleChange("swipeDistance", val)}
+                />
+
+                <NumberInput
+                  label="Start Z-Index"
+                  value={form.settings.startZIndex}
+                  onChange={(val) => handleChange("startZIndex", val)}
+                />
+
+                {/* Switches */}
+                <Group grow>
+                  <Switch
+                    label="Draw Shadow"
+                    checked={form.settings.drawShadow}
+                    onChange={(e) =>
+                      handleChange("drawShadow", e.currentTarget.checked)
+                    }
                   />
-                </label>
-                <label>
-                  Max Shadow Opacity
-                  <input
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    max="1"
-                    name="maxShadowOpacity"
-                    value={form.settings.maxShadowOpacity}
-                    onChange={handleChange}
+                  <Switch
+                    label="Use Portrait"
+                    checked={form.settings.usePortrait}
+                    onChange={(e) =>
+                      handleChange("usePortrait", e.currentTarget.checked)
+                    }
                   />
-                </label>
-                <label>
-                  Swipe Distance
-                  <input
-                    type="number"
-                    name="swipeDistance"
-                    value={form.settings.swipeDistance}
-                    onChange={handleChange}
-                    min="10"
-                    max="100"
+                </Group>
+
+                <Group grow>
+                  <Switch
+                    label="Auto Size"
+                    checked={form.settings.autoSize}
+                    onChange={(e) =>
+                      handleChange("autoSize", e.currentTarget.checked)
+                    }
                   />
-                </label>
-                <label>
-                  Start Z-Index
-                  <input
-                    type="number"
-                    name="startZIndex"
-                    value={form.settings.startZIndex}
-                    onChange={handleChange}
+                  <Switch
+                    label="Show Cover"
+                    checked={form.settings.showCover}
+                    onChange={(e) =>
+                      handleChange("showCover", e.currentTarget.checked)
+                    }
                   />
-                </label>
-              </div>
-            </div>
-          )}
-        </div>
+                </Group>
+
+                <Group grow>
+                  <Switch
+                    label="Mobile Scroll Support"
+                    checked={form.settings.mobileScrollSupport}
+                    onChange={(e) =>
+                      handleChange(
+                        "mobileScrollSupport",
+                        e.currentTarget.checked
+                      )
+                    }
+                  />
+                  <Switch
+                    label="Show Page Numbers"
+                    checked={form.settings.showPageNumbers}
+                    onChange={(e) =>
+                      handleChange("showPageNumbers", e.currentTarget.checked)
+                    }
+                  />
+                </Group>
+
+                <Group grow>
+                  <Switch
+                    label="Show Page Corners"
+                    checked={form.settings.showPageCorners}
+                    onChange={(e) =>
+                      handleChange("showPageCorners", e.currentTarget.checked)
+                    }
+                  />
+                  <Switch
+                    label="Disable Flip By Click"
+                    checked={form.settings.disableFlipByClick}
+                    onChange={(e) =>
+                      handleChange(
+                        "disableFlipByClick",
+                        e.currentTarget.checked
+                      )
+                    }
+                  />
+                </Group>
+
+                <Switch
+                  label="Use Mouse Events"
+                  checked={form.settings.useMouseEvents}
+                  onChange={(e) =>
+                    handleChange("useMouseEvents", e.currentTarget.checked)
+                  }
+                />
+              </Stack>
+            </Accordion.Panel>
+          </Accordion.Item>
+        </Accordion>
+
+        <Button type="submit" mt="lg" loading={saving} fullWidth>
+          Save Flipbook
+        </Button>
       </form>
 
-      <div className={styles.preview}>
+      {/* Preview */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "flex-start",
+          padding: "1rem",
+          background: "#f9fafb",
+          border: "1px solid #e5e7eb",
+          borderRadius: 8,
+          minHeight: 650,
+          position: "sticky",
+          top: "1rem",
+        }}>
         {form.images.length > 0 ? (
           <PageFlipper
             key={flipbookKey}
             images={form.images}
-            width={form.settings.width}
-            height={form.settings.height}
-            showPageNumbers={form.settings.showPageNumbers}
-            size={form.settings.size}
-            minWidth={form.settings.minWidth}
-            maxWidth={form.settings.maxWidth}
-            minHeight={form.settings.minHeight}
-            maxHeight={form.settings.maxHeight}
-            drawShadow={form.settings.drawShadow}
-            flippingTime={form.settings.flippingTime}
-            usePortrait={form.settings.usePortrait}
-            startZIndex={form.settings.startZIndex}
-            autoSize={form.settings.autoSize}
-            maxShadowOpacity={form.settings.maxShadowOpacity}
-            showCover={form.settings.showCover}
-            mobileScrollSupport={form.settings.mobileScrollSupport}
-            swipeDistance={form.settings.swipeDistance}
-            showPageCorners={form.settings.showPageCorners}
-            disableFlipByClick={form.settings.disableFlipByClick}
-            useMouseEvents={form.settings.useMouseEvents}
+            {...form.settings}
           />
         ) : (
-          <div className={styles.placeholder}>
+          <div style={{ textAlign: "center", color: "#6b7280" }}>
             <p>No pages yet</p>
             <p>
               Add one using the <strong>Add Page</strong> button

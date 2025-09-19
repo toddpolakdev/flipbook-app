@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useParams } from "next/navigation";
 import styles from "./edit.module.css";
@@ -52,7 +51,6 @@ const UPDATE_FLIPBOOK = gql`
 
 export default function EditFlipBookPage() {
   const { slug } = useParams() as { slug: string };
-  const [showToast, setShowToast] = useState(false);
 
   const { data, loading, error } = useQuery(FLIPBOOK_BY_SLUG, {
     variables: { slug },
@@ -102,10 +100,6 @@ export default function EditFlipBookPage() {
         },
       },
     });
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-    }, 2500);
   };
 
   if (loading) return <p>Loading…</p>;
@@ -117,24 +111,6 @@ export default function EditFlipBookPage() {
 
   return (
     <main className={styles.container}>
-      {showToast && (
-        <div
-          style={{
-            position: "fixed",
-            top: "20px",
-            right: "20px",
-            background: "#10b981",
-            color: "white",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            zIndex: 1000,
-            fontWeight: "600",
-          }}>
-          ✅ Flipbook saved successfully!
-        </div>
-      )}
-
       <h1>{flipBook.title}</h1>
       <FlipbookForm
         initialValues={{
