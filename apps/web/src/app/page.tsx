@@ -60,51 +60,49 @@ export default function HomePage() {
   return (
     <main className={styles.container}>
       <h1 className={styles.heading}>My Flipbooks</h1>
-      <div className={styles.grid}>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <Droppable droppableId="flipbooks" direction="horizontal">
-            {(provided) => (
-              <div
-                className={styles.grid}
-                ref={provided.innerRef}
-                {...provided.droppableProps}>
-                {flipbooks.map((fb: FlipBook, i: number) => (
-                  <Draggable key={fb.id} draggableId={fb.id} index={i}>
-                    {(provided) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}>
-                        <FlipbookCard key={fb.id} index={i}>
-                          {fb.images?.[0] ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={fb.images[0]}
-                              alt={fb.title}
-                              className={styles.thumbnail}
-                            />
-                          ) : (
-                            <div className={styles.placeholder}>No image</div>
-                          )}
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <Droppable droppableId="flipbooks" direction="horizontal">
+          {(provided) => (
+            <div
+              className={styles.grid}
+              ref={provided.innerRef}
+              {...provided.droppableProps}>
+              {flipbooks.map((fb: FlipBook, i: number) => (
+                <Draggable key={fb.id} draggableId={fb.id} index={i}>
+                  {(provided) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      {...provided.dragHandleProps}>
+                      <FlipbookCard key={fb.id} index={i}>
+                        {fb.images?.[0] ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={fb.images[0]}
+                            alt={fb.title}
+                            className={styles.thumbnail}
+                          />
+                        ) : (
+                          <div className={styles.placeholder}>No image</div>
+                        )}
 
-                          <h2>{fb.title || fb.slug}</h2>
-                          <p>{fb.description || "No description available."}</p>
+                        <h2>{fb.title || fb.slug}</h2>
+                        <p>{fb.description || "No description available."}</p>
 
-                          <div className={styles.actions}>
-                            <Link href={`/flipbook/${fb.slug}`}>View</Link>
-                            <Link href={`/flipbook/${fb.slug}/edit`}>Edit</Link>
-                          </div>
-                        </FlipbookCard>
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext>
-      </div>
+                        <div className={styles.actions}>
+                          <Link href={`/flipbook/${fb.slug}`}>View</Link>
+                          <Link href={`/flipbook/${fb.slug}/edit`}>Edit</Link>
+                        </div>
+                      </FlipbookCard>
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
+      </DragDropContext>
     </main>
   );
 }
