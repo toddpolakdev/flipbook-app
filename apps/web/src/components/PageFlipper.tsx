@@ -93,8 +93,8 @@ export default function PageFlipper({
                 src={src}
                 alt={`Page ${i + 1}`}
                 style={{
-                  width: "80%",
-                  height: "80%",
+                  width: "100%",
+                  height: "100%",
                   objectFit: "cover",
                 }}
               />

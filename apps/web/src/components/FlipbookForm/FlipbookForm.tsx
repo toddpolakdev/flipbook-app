@@ -15,6 +15,7 @@ import {
 import { Button } from "@mantine/core";
 import PageFlipper from "../PageFlipper";
 import { toast } from "sonner";
+import styles from "./FlipbookForm.module.css";
 
 export interface FlipbookFormValues {
   slug: string;
@@ -86,8 +87,8 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
     setForm({
       ...form,
       images: [
-        ...form.images,
         "https://fastly.picsum.photos/id/2/5000/3333.jpg?hmac=_KDkqQVttXw_nM-RyJfLImIbafFrqLsuGO5YuHqD-qQe",
+        ...form.images,
       ],
     });
   };
@@ -151,6 +152,7 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                 <Button variant="light" onClick={addPage}>
                   Add Page
                 </Button>
+
                 <DragDropContext
                   onDragEnd={(result) => {
                     if (!result.destination) return;
@@ -224,6 +226,134 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
             <Accordion.Control>Settings</Accordion.Control>
             <Accordion.Panel>
               <Stack gap="md">
+                {/* Switches */}
+                <Group grow>
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Draw Shadow"
+                    checked={form.settings.drawShadow}
+                    onChange={(e) =>
+                      handleChange("drawShadow", e.currentTarget.checked)
+                    }
+                  />
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Use Portrait"
+                    checked={form.settings.usePortrait}
+                    onChange={(e) =>
+                      handleChange("usePortrait", e.currentTarget.checked)
+                    }
+                  />
+                </Group>
+
+                <Group grow>
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Auto Size"
+                    checked={form.settings.autoSize}
+                    onChange={(e) =>
+                      handleChange("autoSize", e.currentTarget.checked)
+                    }
+                  />
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Show Cover"
+                    checked={form.settings.showCover}
+                    onChange={(e) =>
+                      handleChange("showCover", e.currentTarget.checked)
+                    }
+                  />
+                </Group>
+
+                <Group grow>
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Mobile Scroll Support"
+                    checked={form.settings.mobileScrollSupport}
+                    onChange={(e) =>
+                      handleChange(
+                        "mobileScrollSupport",
+                        e.currentTarget.checked
+                      )
+                    }
+                  />
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Show Page Numbers"
+                    checked={form.settings.showPageNumbers}
+                    onChange={(e) =>
+                      handleChange("showPageNumbers", e.currentTarget.checked)
+                    }
+                  />
+                </Group>
+
+                <Group grow>
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Show Page Corners"
+                    checked={form.settings.showPageCorners}
+                    onChange={(e) =>
+                      handleChange("showPageCorners", e.currentTarget.checked)
+                    }
+                  />
+                  <Switch
+                    classNames={{
+                      track: styles.myTrack,
+                      thumb: styles.myThumb,
+                      label: styles.myLabel,
+                    }}
+                    label="Disable Flip By Click"
+                    checked={form.settings.disableFlipByClick}
+                    onChange={(e) =>
+                      handleChange(
+                        "disableFlipByClick",
+                        e.currentTarget.checked
+                      )
+                    }
+                  />
+                </Group>
+
+                <Switch
+                  classNames={{
+                    track: styles.myTrack,
+                    thumb: styles.myThumb,
+                    label: styles.myLabel,
+                  }}
+                  label="Use Mouse Events"
+                  checked={form.settings.useMouseEvents}
+                  onChange={(e) =>
+                    handleChange("useMouseEvents", e.currentTarget.checked)
+                  }
+                />
+
                 <Group grow>
                   <NumberInput
                     label="Width"
@@ -305,89 +435,6 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                   value={form.settings.startZIndex}
                   onChange={(val) => handleChange("startZIndex", val)}
                 />
-
-                {/* Switches */}
-                <Group grow>
-                  <Switch
-                    label="Draw Shadow"
-                    checked={form.settings.drawShadow}
-                    onChange={(e) =>
-                      handleChange("drawShadow", e.currentTarget.checked)
-                    }
-                  />
-                  <Switch
-                    label="Use Portrait"
-                    checked={form.settings.usePortrait}
-                    onChange={(e) =>
-                      handleChange("usePortrait", e.currentTarget.checked)
-                    }
-                  />
-                </Group>
-
-                <Group grow>
-                  <Switch
-                    label="Auto Size"
-                    checked={form.settings.autoSize}
-                    onChange={(e) =>
-                      handleChange("autoSize", e.currentTarget.checked)
-                    }
-                  />
-                  <Switch
-                    label="Show Cover"
-                    checked={form.settings.showCover}
-                    onChange={(e) =>
-                      handleChange("showCover", e.currentTarget.checked)
-                    }
-                  />
-                </Group>
-
-                <Group grow>
-                  <Switch
-                    label="Mobile Scroll Support"
-                    checked={form.settings.mobileScrollSupport}
-                    onChange={(e) =>
-                      handleChange(
-                        "mobileScrollSupport",
-                        e.currentTarget.checked
-                      )
-                    }
-                  />
-                  <Switch
-                    label="Show Page Numbers"
-                    checked={form.settings.showPageNumbers}
-                    onChange={(e) =>
-                      handleChange("showPageNumbers", e.currentTarget.checked)
-                    }
-                  />
-                </Group>
-
-                <Group grow>
-                  <Switch
-                    label="Show Page Corners"
-                    checked={form.settings.showPageCorners}
-                    onChange={(e) =>
-                      handleChange("showPageCorners", e.currentTarget.checked)
-                    }
-                  />
-                  <Switch
-                    label="Disable Flip By Click"
-                    checked={form.settings.disableFlipByClick}
-                    onChange={(e) =>
-                      handleChange(
-                        "disableFlipByClick",
-                        e.currentTarget.checked
-                      )
-                    }
-                  />
-                </Group>
-
-                <Switch
-                  label="Use Mouse Events"
-                  checked={form.settings.useMouseEvents}
-                  onChange={(e) =>
-                    handleChange("useMouseEvents", e.currentTarget.checked)
-                  }
-                />
               </Stack>
             </Accordion.Panel>
           </Accordion.Item>
@@ -399,7 +446,7 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
       </form>
 
       {/* Preview */}
-      <div
+      {/* <div
         style={{
           display: "flex",
           justifyContent: "center",
@@ -411,13 +458,16 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
           minHeight: 650,
           position: "sticky",
           top: "1rem",
-        }}>
+        }}> */}
+      <div className={styles.preview}>
         {form.images.length > 0 ? (
-          <PageFlipper
-            key={flipbookKey}
-            images={form.images}
-            {...form.settings}
-          />
+          <div className={styles.previewScale}>
+            <PageFlipper
+              key={flipbookKey}
+              images={form.images}
+              {...form.settings}
+            />
+          </div>
         ) : (
           <div style={{ textAlign: "center", color: "#6b7280" }}>
             <p>No pages yet</p>

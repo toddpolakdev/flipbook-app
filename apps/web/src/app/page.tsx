@@ -2,24 +2,12 @@
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-
+import { useSession } from "next-auth/react";
 import styles from "./home.module.css";
 import { FlipBook } from "@/types/flipbook";
 import FlipbookCard from "@/components/FlipbookCard/FlipbookCard";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-
-const FLIPBOOKS = gql`
-  query FlipBooks {
-    flipBooks {
-      id
-      slug
-      title
-      description
-      images
-      order
-    }
-  }
-`;
+import { ALL_FLIPBOOKS, MY_FLIPBOOKS } from "./graphql/queries";
 
 const REORDER_FLIPBOOKS = gql`
   mutation ReorderFlipBooks($ids: [ID!]!) {
@@ -28,9 +16,18 @@ const REORDER_FLIPBOOKS = gql`
 `;
 
 export default function HomePage() {
-  const { data } = useQuery(FLIPBOOKS, {
-    fetchPolicy: "no-cache",
-  });
+  const { data: session } = useSession();
+
+  console.log("session", session);
+
+  // Pick query depending on login state
+  const { data, loading, error } = useQuery(
+    session ? MY_FLIPBOOKS : ALL_FLIPBOOKS,
+    {
+      fetchPolicy: "no-cache",
+    }
+  );
+
   const [flipbooks, setFlipbooks] = useState<FlipBook[]>([]);
 
   const [reorderFlipBooks] = useMutation(REORDER_FLIPBOOKS);
@@ -45,7 +42,6 @@ export default function HomePage() {
 
     setFlipbooks(reordered);
 
-    // Save to DB
     await reorderFlipBooks({
       variables: { ids: reordered.map((fb) => fb.id) },
     });

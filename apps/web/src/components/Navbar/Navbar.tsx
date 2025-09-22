@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import styles from "./Navbar.module.css";
+import AuthButton from "../AuthButton/AuthButton";
 
 export default function NavBar() {
   const pathname = usePathname();
@@ -35,6 +36,8 @@ export default function NavBar() {
             </Link>
           )}
         </div>
+
+        <AuthButton />
 
         <button
           className={styles.menuButton}

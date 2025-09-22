@@ -6,6 +6,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBar from "@/components/Navbar/Navbar";
 import { Toaster } from "sonner";
+import Providers from "../../components/SessionProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -110,7 +111,7 @@ const flipbookTheme = createTheme({
     Switch: {
       defaultProps: {
         radius: "xl",
-        size: "md",
+        size: "lg",
         color: "flipbookBlue",
       },
     },
@@ -133,8 +134,10 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <ApolloWrapper>
           <MantineProvider defaultColorScheme="light" theme={flipbookTheme}>
-            <NavBar />
-            {children}
+            <Providers>
+              <NavBar />
+              {children}
+            </Providers>
             <Toaster position="top-right" richColors closeButton />
           </MantineProvider>
         </ApolloWrapper>
