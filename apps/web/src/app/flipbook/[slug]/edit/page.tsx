@@ -2,6 +2,7 @@
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useParams } from "next/navigation";
 import styles from "./edit.module.css";
+import Loader from "@/components/Loader/Loader";
 
 import FlipbookForm, {
   defaultFlipbookValues,
@@ -102,7 +103,7 @@ export default function EditFlipBookPage() {
     });
   };
 
-  if (loading) return <p>Loading…</p>;
+  if (loading) return <Loader />;
   if (error) return <p>Error: {error.message}</p>;
 
   const flipBook = data.flipBookBySlug;
