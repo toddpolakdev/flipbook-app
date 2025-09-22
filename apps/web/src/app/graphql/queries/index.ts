@@ -9,6 +9,7 @@ export const ALL_FLIPBOOKS = gql`
       description
       images
       order
+      userEmail
     }
   }
 `;
@@ -22,6 +23,7 @@ export const MY_FLIPBOOKS = gql`
       description
       images
       order
+      userEmail
     }
   }
 `;

@@ -20,13 +20,11 @@ export default function HomePage() {
 
   console.log("session", session);
 
-  // Pick query depending on login state
-  const { data, loading, error } = useQuery(
-    session ? MY_FLIPBOOKS : ALL_FLIPBOOKS,
-    {
-      fetchPolicy: "no-cache",
-    }
-  );
+  const { data } = useQuery(session ? MY_FLIPBOOKS : ALL_FLIPBOOKS, {
+    fetchPolicy: "no-cache",
+  });
+
+  console.log("data", data);
 
   const [flipbooks, setFlipbooks] = useState<FlipBook[]>([]);
 
@@ -48,14 +46,20 @@ export default function HomePage() {
   };
 
   useEffect(() => {
-    if (data?.flipBooks) {
-      setFlipbooks(data.flipBooks);
+    if (session) {
+      if (data?.myFlipbooks) {
+        setFlipbooks(data.myFlipbooks);
+      }
+    } else {
+      if (data?.flipBooks) {
+        setFlipbooks(data.flipBooks);
+      }
     }
-  }, [data]);
+  }, [data, session]);
 
   return (
     <main className={styles.container}>
-      <h1 className={styles.heading}>My Flipbooks</h1>
+      <h1 className={styles.heading}></h1>
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="flipbooks" direction="horizontal">
           {(provided) => (
