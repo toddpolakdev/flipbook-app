@@ -190,7 +190,8 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                       src={img}
-                                      alt={`Page ${idx + 1}`}
+                                      // alt={`Page ${idx + 1}`}
+                                      alt=""
                                       style={{
                                         width: "100%",
                                         height: "100%",
@@ -355,6 +356,27 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                 />
 
                 <Group grow>
+                  <Select
+                    label="Size"
+                    data={[
+                      { value: "fixed", label: "Fixed" },
+                      { value: "stretch", label: "Stretch" },
+                    ]}
+                    value={form.settings.size}
+                    onChange={(val) => handleChange("size", val)}
+                  />
+
+                  <NumberInput
+                    label="Flipping Time (ms)"
+                    min={100}
+                    max={2000}
+                    step={100}
+                    value={form.settings.flippingTime}
+                    onChange={(val) => handleChange("flippingTime", val)}
+                  />
+                </Group>
+
+                <Group grow>
                   <NumberInput
                     label="Width"
                     value={form.settings.width}
@@ -366,16 +388,6 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                     onChange={(val) => handleChange("height", val)}
                   />
                 </Group>
-
-                <Select
-                  label="Size"
-                  data={[
-                    { value: "fixed", label: "Fixed" },
-                    { value: "stretch", label: "Stretch" },
-                  ]}
-                  value={form.settings.size}
-                  onChange={(val) => handleChange("size", val)}
-                />
 
                 <Group grow>
                   <NumberInput
@@ -403,38 +415,31 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                   />
                 </Group>
 
-                <NumberInput
-                  label="Flipping Time (ms)"
-                  min={100}
-                  max={2000}
-                  step={100}
-                  value={form.settings.flippingTime}
-                  onChange={(val) => handleChange("flippingTime", val)}
-                />
+                <Group grow>
+                  <NumberInput
+                    label="Swipe Distance"
+                    min={10}
+                    max={100}
+                    value={form.settings.swipeDistance}
+                    onChange={(val) => handleChange("swipeDistance", val)}
+                  />
 
-                <NumberInput
-                  label="Max Shadow Opacity"
-                  min={0}
-                  max={1}
-                  step={0.1}
-                  // precision={1}
-                  value={form.settings.maxShadowOpacity}
-                  onChange={(val) => handleChange("maxShadowOpacity", val)}
-                />
-
-                <NumberInput
-                  label="Swipe Distance"
-                  min={10}
-                  max={100}
-                  value={form.settings.swipeDistance}
-                  onChange={(val) => handleChange("swipeDistance", val)}
-                />
-
-                <NumberInput
-                  label="Start Z-Index"
-                  value={form.settings.startZIndex}
-                  onChange={(val) => handleChange("startZIndex", val)}
-                />
+                  <NumberInput
+                    label="Start Z-Index"
+                    value={form.settings.startZIndex}
+                    onChange={(val) => handleChange("startZIndex", val)}
+                  />
+                </Group>
+                <Group>
+                  <NumberInput
+                    label="Max Shadow Opacity"
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    value={form.settings.maxShadowOpacity}
+                    onChange={(val) => handleChange("maxShadowOpacity", val)}
+                  />
+                </Group>
               </Stack>
             </Accordion.Panel>
           </Accordion.Item>
@@ -445,20 +450,6 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
         </Button>
       </form>
 
-      {/* Preview */}
-      {/* <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          padding: "1rem",
-          background: "#f9fafb",
-          border: "1px solid #e5e7eb",
-          borderRadius: 8,
-          minHeight: 650,
-          position: "sticky",
-          top: "1rem",
-        }}> */}
       <div className={styles.preview}>
         {form.images.length > 0 ? (
           <div className={styles.previewScale}>

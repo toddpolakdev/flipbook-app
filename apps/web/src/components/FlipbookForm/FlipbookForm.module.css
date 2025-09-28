@@ -1,19 +1,5 @@
-.myTrack {
-  /* background-color: #222;
-  border: 2px solid #00f; */
-}
-
-.myThumb {
-  /* background-color: #fff; */
-}
-
 .myThumb::before {
   background-color: transparent !important;
-}
-
-.myLabel {
-  /* font-weight: bold;
-  color: red; */
 }
 
 .previewScale {
