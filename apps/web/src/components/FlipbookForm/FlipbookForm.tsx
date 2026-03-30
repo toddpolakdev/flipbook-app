@@ -16,6 +16,7 @@ import { Button } from "@mantine/core";
 import PageFlipper from "../PageFlipper";
 import { toast } from "sonner";
 import styles from "./FlipbookForm.module.css";
+import { uploadImage } from "@/lib/uploadImage";
 
 export interface FlipbookFormValues {
   slug: string;
@@ -113,7 +114,8 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
         display: "grid",
         gridTemplateColumns: "1fr 500px",
         gap: "2rem",
-      }}>
+      }}
+    >
       <form onSubmit={handleSubmit}>
         <Accordion multiple defaultValue={["details", "pages", "settings"]}>
           {/* Details */}
@@ -153,6 +155,27 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                   Add Page
                 </Button>
 
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={async (e) => {
+                    const files = Array.from(e.target.files || []);
+
+                    // Upload all images (you’ll wire this to Cloudinary)
+                    const uploadedUrls = await Promise.all(
+                      files.map(async (file) => {
+                        return await uploadImage(file); // your helper
+                      }),
+                    );
+
+                    setForm({
+                      ...form,
+                      images: [...form.images, ...uploadedUrls],
+                    });
+                  }}
+                />
+
                 <DragDropContext
                   onDragEnd={(result) => {
                     if (!result.destination) return;
@@ -160,7 +183,8 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                     const [moved] = newImages.splice(result.source.index, 1);
                     newImages.splice(result.destination.index, 0, moved);
                     setForm({ ...form, images: newImages });
-                  }}>
+                  }}
+                >
                   <Droppable droppableId="pages">
                     {(provided) => (
                       <div ref={provided.innerRef} {...provided.droppableProps}>
@@ -168,7 +192,8 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                           <Draggable
                             key={idx}
                             draggableId={String(idx)}
-                            index={idx}>
+                            index={idx}
+                          >
                             {(provided) => (
                               <Card
                                 shadow="sm"
@@ -177,7 +202,8 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                                 withBorder
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                {...provided.dragHandleProps}>
+                                {...provided.dragHandleProps}
+                              >
                                 <Group>
                                   <div
                                     style={{
@@ -186,7 +212,8 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                                       border: "1px solid #ddd",
                                       borderRadius: 4,
                                       overflow: "hidden",
-                                    }}>
+                                    }}
+                                  >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                       src={img}
@@ -294,7 +321,7 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                     onChange={(e) =>
                       handleChange(
                         "mobileScrollSupport",
-                        e.currentTarget.checked
+                        e.currentTarget.checked,
                       )
                     }
                   />
@@ -336,7 +363,7 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
                     onChange={(e) =>
                       handleChange(
                         "disableFlipByClick",
-                        e.currentTarget.checked
+                        e.currentTarget.checked,
                       )
                     }
                   />
