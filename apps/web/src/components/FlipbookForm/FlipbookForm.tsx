@@ -151,9 +151,7 @@ export default function FlipbookForm({ initialValues, onSubmit }: Props) {
             <Accordion.Control>Pages</Accordion.Control>
             <Accordion.Panel>
               <Stack>
-                <Button variant="light" onClick={addPage}>
-                  Add Page
-                </Button>
+                <Button onClick={addPage}>Add Image URL</Button>
 
                 <input
                   type="file"

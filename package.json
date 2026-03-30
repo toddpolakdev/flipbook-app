@@ -16,8 +16,6 @@
     "typescript": "^5.6.2"
   },
   "dependencies": {
-    "axios": "^1.14.0",
-    "cloudinary": "^2.9.0",
     "micro-cors": "^0.1.1"
   }
 }
