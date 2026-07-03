@@ -47,6 +47,5 @@ docker-compose.override.yml
 tmp
 temp
 
-# Monorepo-specific
-apps/api/node_modules
-apps/web/node_modules
+# Next.js
+next-env.d.ts

@@ -1,21 +1,39 @@
 {
   "name": "flipbook-app",
+  "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "web"
-  ],
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only apps/api/src/index.ts",
-    "dev:web": "npm --workspace web run dev",
-    "dev:api": "npm --workspace apps/api run dev",
-    "build": "npm --workspace web run build && npm --workspace apps/api run build"
-  },
-  "devDependencies": {
-    "concurrently": "^9.0.0",
-    "typescript": "^5.6.2"
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "dependencies": {
-    "micro-cors": "^0.1.1"
+    "@apollo/client": "^3.14.0",
+    "@hello-pangea/dnd": "^18.0.1",
+    "@mantine/core": "^8.3.1",
+    "@mantine/form": "^8.3.1",
+    "@mantine/hooks": "^8.3.1",
+    "axios": "^1.14.0",
+    "cloudinary": "^2.9.0",
+    "cross-fetch": "^4.1.0",
+    "framer-motion": "^12.23.12",
+    "graphql": "^16.11.0",
+    "lucide-react": "^0.542.0",
+    "next": "^15.5.14",
+    "next-auth": "^4.24.11",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-pageflip": "^2.0.3",
+    "sonner": "^2.0.7"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.2",
+    "typescript": "^5"
   }
 }

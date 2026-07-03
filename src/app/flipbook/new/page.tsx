@@ -2,7 +2,10 @@
 import { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
 import { useRouter } from "next/navigation";
-import styles from "./new.module.css";
+import { useSession } from "next-auth/react";
+import { generateSlug } from "@/lib/slug";
+import Loader from "@/components/Loader/Loader";
+import SignInPrompt from "@/components/SignInPrompt/SignInPrompt";
 import FlipbookForm, {
   defaultFlipbookValues,
   FlipbookFormValues,
@@ -16,10 +19,16 @@ const CREATE_FLIPBOOK = gql`
 
 export default function NewFlipBookPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
   const [showToast, setShowToast] = useState(false);
 
   const [createFlipBook] = useMutation(CREATE_FLIPBOOK, {
-    refetchQueries: ["FlipBooks"],
+    // Invalidate cached lists so the new flipbook appears without a hard refresh.
+    update: (cache) => {
+      cache.evict({ fieldName: "flipBooks" });
+      cache.evict({ fieldName: "myFlipbooks" });
+      cache.gc();
+    },
   });
 
   const handleSubmit = async (values: FlipbookFormValues) => {
@@ -48,14 +57,17 @@ export default function NewFlipBookPage() {
         }
       : undefined;
 
-    const res = await createFlipBook({
+    // Slugs are generated automatically; the user never sets them.
+    const slug = generateSlug(values.title);
+
+    await createFlipBook({
       variables: {
         input: {
-          slug: values.slug,
+          slug,
           title: values.title,
           description: values.description,
           images: values.images,
-          status: "draft",
+          status: values.published ? "published" : "draft",
           tags: [],
           settings: cleanSettings,
         },
@@ -68,12 +80,16 @@ export default function NewFlipBookPage() {
     // Navigate to edit page after showing toast
     setTimeout(() => {
       setShowToast(false);
-      router.push(`/flipbook/${values.slug}/edit`);
+      router.push(`/flipbook/${slug}/edit`);
     }, 2000);
   };
 
+  if (status === "loading") return <Loader />;
+  if (!session)
+    return <SignInPrompt message="Please sign in to create a flipbook." />;
+
   return (
-    <main className={styles.container}>
+    <>
       {/* Toast Message */}
       {showToast && (
         <div
@@ -93,11 +109,11 @@ export default function NewFlipBookPage() {
         </div>
       )}
 
-      <h1>New Flipbook</h1>
       <FlipbookForm
+        heading="New flipbook"
         initialValues={defaultFlipbookValues}
         onSubmit={handleSubmit}
       />
-    </main>
+    </>
   );
 }

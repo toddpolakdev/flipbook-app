@@ -7,7 +7,7 @@ export default function getServerClient() {
     link: new HttpLink({
       uri:
         process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT ||
-        "http://localhost:4000/graphql",
+        "http://localhost:4000/api/graphql",
       fetch,
     }),
     cache: new InMemoryCache(),

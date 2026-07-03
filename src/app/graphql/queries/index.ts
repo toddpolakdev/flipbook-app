@@ -1,7 +1,8 @@
 import { gql } from "@apollo/client";
 
-export const ALL_FLIPBOOKS = gql`
-  query GetAllFlipbooks {
+// Public gallery — the backend returns only published flipbooks here.
+export const PUBLIC_FLIPBOOKS = gql`
+  query GetPublicFlipbooks {
     flipBooks {
       id
       slug
@@ -9,6 +10,7 @@ export const ALL_FLIPBOOKS = gql`
       description
       images
       order
+      status
       userEmail
     }
   }
@@ -23,6 +25,7 @@ export const MY_FLIPBOOKS = gql`
       description
       images
       order
+      status
       userEmail
     }
   }

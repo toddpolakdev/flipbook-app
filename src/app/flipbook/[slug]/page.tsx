@@ -28,6 +28,8 @@ export default function FlipBookPage() {
 
   const { data, loading, error } = useQuery(FLIPBOOK_BY_SLUG, {
     variables: { slug },
+    // Always revalidate against the server so edits show up without a hard refresh.
+    fetchPolicy: "cache-and-network",
   });
 
   if (loading) return <p>Loading flipbook…</p>;

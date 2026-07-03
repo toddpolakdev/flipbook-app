@@ -30,6 +30,8 @@ export interface FlipBook {
   description?: string;
   images: string[];
   order?: number;
+  status?: string;
+  userEmail?: string | null;
   settings?: FlipBookSettings;
   createdAt?: string;
   updatedAt?: string;
