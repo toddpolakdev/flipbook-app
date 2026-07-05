@@ -97,6 +97,7 @@ export default function FlipbookForm({
   const [urlInput, setUrlInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [titleError, setTitleError] = useState<string | null>(null);
 
   const [deleteImage] = useMutation(DELETE_IMAGE);
 
@@ -221,9 +222,21 @@ export default function FlipbookForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const trimmedTitle = form.title.trim();
+    if (!trimmedTitle) {
+      setTitleError("Title is required.");
+      toast.error("Please add a title before saving.");
+      return;
+    }
+
     setSaving(true);
     try {
-      await onSubmit({ ...form, images: pages.map((p) => p.url) });
+      await onSubmit({
+        ...form,
+        title: trimmedTitle,
+        images: pages.map((p) => p.url),
+      });
       toast.success("Flipbook saved!");
     } finally {
       setSaving(false);
@@ -275,10 +288,14 @@ export default function FlipbookForm({
                 <Stack gap="md">
                   <TextInput
                     label="Title"
+                    required
+                    withAsterisk
+                    error={titleError}
                     value={form.title}
-                    onChange={(e) =>
-                      handleChange("title", e.currentTarget.value)
-                    }
+                    onChange={(e) => {
+                      handleChange("title", e.currentTarget.value);
+                      if (titleError) setTitleError(null);
+                    }}
                   />
                   <Textarea
                     label="Description"

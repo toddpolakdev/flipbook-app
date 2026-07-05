@@ -27,6 +27,14 @@ type PageFlipperProps = {
   useMouseEvents?: boolean;
 };
 
+// Fields cleared in the editor arrive as "" (or NaN); HTMLFlipBook throws
+// "Invalid width or height" on any non-positive number, so coerce to a
+// sensible fallback before handing sizing props to it.
+const toPositive = (value: unknown, fallback: number): number => {
+  const num = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(num) && num > 0 ? num : fallback;
+};
+
 export default function PageFlipper({
   images,
   width = 400,
@@ -54,13 +62,13 @@ export default function PageFlipper({
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       <HTMLFlipBook
-        width={width}
-        height={height}
+        width={toPositive(width, 400)}
+        height={toPositive(height, 600)}
         size={size}
-        minWidth={minWidth}
-        maxWidth={maxWidth}
-        minHeight={minHeight}
-        maxHeight={maxHeight}
+        minWidth={toPositive(minWidth, 315)}
+        maxWidth={toPositive(maxWidth, 1000)}
+        minHeight={toPositive(minHeight, 400)}
+        maxHeight={toPositive(maxHeight, 1500)}
         maxShadowOpacity={maxShadowOpacity}
         drawShadow={drawShadow}
         flippingTime={flippingTime}
